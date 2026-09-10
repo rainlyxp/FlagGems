@@ -156,6 +156,7 @@ from .gt import gt, gt_scalar
 from .hadamard_transform import hadamard_transform
 from .hardsigmoid import hardsigmoid, hardsigmoid_out
 from .hstack import hstack
+from .igammac_ import igammac_, special_gammaincc
 from .index import index
 from .index_add import index_add, index_add_
 from .index_put import index_put, index_put_
@@ -176,7 +177,7 @@ from .linspace import linspace
 from .log import log
 from .log1p import log1p, log1p_
 from .log_sigmoid import log_sigmoid
-from .log_softmax import log_softmax, log_softmax_backward
+from .log_softmax import log_softmax, log_softmax_backward, log_softmax_backward_out
 from .logaddexp2 import logaddexp2, logaddexp2_out
 from .logical_and import logical_and, logical_and_
 from .logical_not import logical_not, logical_not_
@@ -273,6 +274,12 @@ from .scaled_softmax import scaled_softmax_backward, scaled_softmax_forward
 from .scatter import scatter, scatter_
 from .scatter_add_ import scatter_add_
 from .select_scatter import select_scatter
+from .segment_reduce import (
+    _segment_reduce_backward,
+    _segment_reduce_backward_out,
+    segment_reduce,
+    segment_reduce_out,
+)
 from .selu import selu, selu_
 from .sgn_ import sgn_
 from .sigmoid import sigmoid, sigmoid_, sigmoid_backward
@@ -340,6 +347,8 @@ __all__ = [
     "_thnn_fused_lstm_cell_backward_impl",
     "_conv_depthwise2d",
     "_safe_softmax",
+    "_segment_reduce_backward",
+    "_segment_reduce_backward_out",
     "digamma_",
     "soft_margin_loss",
     "soft_margin_loss_out",
@@ -529,6 +538,7 @@ __all__ = [
     "hadamard_transform",
     "hardsigmoid",
     "hardsigmoid_out",
+    "igammac_",
     "index",
     "index_add",
     "index_add_",
@@ -562,6 +572,7 @@ __all__ = [
     "log_sigmoid",
     "log_softmax",
     "log_softmax_backward",
+    "log_softmax_backward_out",
     "logaddexp2",
     "logaddexp2_out",
     "logsumexp",
@@ -695,6 +706,8 @@ __all__ = [
     "scatter_",
     "scatter_add_",
     "select_scatter",
+    "segment_reduce",
+    "segment_reduce_out",
     "selu",
     "selu_",
     "sigmoid",
@@ -717,6 +730,7 @@ __all__ = [
     "softplus",
     "sort",
     "sort_stable",
+    "special_gammaincc",
     "sqrt",
     "sqrt_",
     "stack",
