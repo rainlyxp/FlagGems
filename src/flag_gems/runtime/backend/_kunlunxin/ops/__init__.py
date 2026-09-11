@@ -295,6 +295,7 @@ from .softmax import softmax, softmax_backward
 from .softplus import softplus
 from .softshrink import softshrink, softshrink_out
 from .sort import sort, sort_stable
+from .special_bessel_y1 import special_bessel_y1
 from .special_log_softmax import special_log_softmax
 from .special_logsumexp import special_logsumexp
 from .sqrt import sqrt, sqrt_
@@ -353,6 +354,7 @@ __all__ = [
     "soft_margin_loss",
     "soft_margin_loss_out",
     "soft_margin_loss_backward",
+    "special_bessel_y1",
     "special_log_softmax",
     "special_logsumexp",
     "softshrink",
