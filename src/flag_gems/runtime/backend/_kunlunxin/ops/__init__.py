@@ -22,6 +22,7 @@ from ._thnn_fused_lstm_cell_backward_impl import _thnn_fused_lstm_cell_backward_
 from .abs import abs, abs_
 from .absolute import absolute
 from .acos import acos
+from .acosh import acosh, acosh_
 from .add import add, add_
 from .addcdiv import addcdiv, addcdiv_, addcdiv_out
 from .addcmul import addcmul, addcmul_out
@@ -99,6 +100,7 @@ from .conv_depthwise2d import _conv_depthwise2d
 from .copy import copy, copy_
 from .copysign import copysign, copysign_out
 from .cos import cos, cos_
+from .cosh import cosh_out
 from .count_nonzero import count_nonzero
 from .cummax import cummax
 from .cummin import cummin
@@ -155,9 +157,11 @@ from .groupnorm import group_norm, group_norm_backward
 from .gt import gt, gt_scalar
 from .hadamard_transform import hadamard_transform
 from .hardsigmoid import hardsigmoid, hardsigmoid_out
+from .hardswish_ import hardswish_
 from .hstack import hstack
 from .index import index
 from .index_add import index_add, index_add_
+from .index_fill import index_fill, index_fill_
 from .index_put import index_put, index_put_
 from .index_select import index_select
 from .isclose import allclose, isclose
@@ -174,7 +178,9 @@ from .less_equal import less_equal, less_equal_scalar
 from .lift_fresh_copy import lift_fresh_copy
 from .linspace import linspace
 from .log import log
+from .log10 import log10_, log10_out
 from .log1p import log1p, log1p_
+from .log2 import log2
 from .log_sigmoid import log_sigmoid
 from .log_softmax import log_softmax, log_softmax_backward
 from .logaddexp2 import logaddexp2, logaddexp2_out
@@ -346,6 +352,8 @@ __all__ = [
     "abs_",
     "absolute",
     "acos",
+    "acosh",
+    "acosh_",
     "add",
     "add_",
     "addcdiv",
@@ -442,6 +450,7 @@ __all__ = [
     "copysign_out",
     "cos",
     "cos_",
+    "cosh_out",
     "count_nonzero",
     "cummax",
     "cummin",
@@ -521,10 +530,13 @@ __all__ = [
     "hadamard_transform",
     "hardsigmoid",
     "hardsigmoid_out",
+    "hardswish_",
     "hstack",
     "index",
     "index_add",
     "index_add_",
+    "index_fill",
+    "index_fill_",
     "index_put",
     "index_put_",
     "index_select",
@@ -550,8 +562,11 @@ __all__ = [
     "lift_fresh_copy",
     "linspace",
     "log",
+    "log10_",
+    "log10_out",
     "log1p",
     "log1p_",
+    "log2",
     "log_sigmoid",
     "log_softmax",
     "log_softmax_backward",
