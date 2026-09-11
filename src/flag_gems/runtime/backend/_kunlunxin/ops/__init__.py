@@ -273,6 +273,12 @@ from .safe_softmax import _safe_softmax
 from .scaled_softmax import scaled_softmax_backward, scaled_softmax_forward
 from .scatter import scatter, scatter_
 from .scatter_add_ import scatter_add_
+from .segment_reduce import (
+    _segment_reduce_backward,
+    _segment_reduce_backward_out,
+    segment_reduce,
+    segment_reduce_out,
+)
 from .select_scatter import select_scatter
 from .selu import selu, selu_
 from .sgn_ import sgn_
@@ -341,6 +347,8 @@ __all__ = [
     "_thnn_fused_lstm_cell_backward_impl",
     "_conv_depthwise2d",
     "_safe_softmax",
+    "_segment_reduce_backward",
+    "_segment_reduce_backward_out",
     "digamma_",
     "soft_margin_loss",
     "soft_margin_loss_out",
@@ -697,6 +705,8 @@ __all__ = [
     "scatter_",
     "scatter_add_",
     "select_scatter",
+    "segment_reduce",
+    "segment_reduce_out",
     "selu",
     "selu_",
     "sigmoid",
