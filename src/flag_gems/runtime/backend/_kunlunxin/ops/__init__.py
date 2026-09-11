@@ -196,6 +196,7 @@ from .maximum import maximum
 from .mean import mean, mean_dim
 from .min import min, min_dim
 from .minimum import minimum
+from .mkldnn_rnn_layer import mkldnn_rnn_layer
 from .mm import mm, mm_out
 from .mse_loss import mse_loss
 from .mul import mul, mul_
@@ -595,6 +596,7 @@ __all__ = [
     "min",
     "min_dim",
     "minimum",
+    "mkldnn_rnn_layer",
     "mm",
     "mm_out",
     "mse_loss",
