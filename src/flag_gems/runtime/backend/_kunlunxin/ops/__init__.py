@@ -157,6 +157,7 @@ from .groupnorm import group_norm, group_norm_backward
 from .gt import gt, gt_scalar
 from .hadamard_transform import hadamard_transform
 from .hardsigmoid import hardsigmoid, hardsigmoid_out
+from .hardswish_ import hardswish_
 from .hstack import hstack
 from .index import index
 from .index_add import index_add, index_add_
@@ -526,6 +527,7 @@ __all__ = [
     "hadamard_transform",
     "hardsigmoid",
     "hardsigmoid_out",
+    "hardswish_",
     "hstack",
     "index",
     "index_add",
