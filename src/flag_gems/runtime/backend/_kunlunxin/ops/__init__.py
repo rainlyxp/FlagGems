@@ -100,6 +100,7 @@ from .conv_depthwise2d import _conv_depthwise2d
 from .copy import copy, copy_
 from .copysign import copysign, copysign_out
 from .cos import cos, cos_
+from .cosh import cosh_out
 from .count_nonzero import count_nonzero
 from .cummax import cummax
 from .cummin import cummin
@@ -445,6 +446,7 @@ __all__ = [
     "copysign_out",
     "cos",
     "cos_",
+    "cosh_out",
     "count_nonzero",
     "cummax",
     "cummin",
