@@ -161,6 +161,7 @@ from .hardswish_ import hardswish_
 from .hstack import hstack
 from .index import index
 from .index_add import index_add, index_add_
+from .index_fill import index_fill, index_fill_
 from .index_put import index_put, index_put_
 from .index_select import index_select
 from .isclose import allclose, isclose
@@ -532,6 +533,8 @@ __all__ = [
     "index",
     "index_add",
     "index_add_",
+    "index_fill",
+    "index_fill_",
     "index_put",
     "index_put_",
     "index_select",
