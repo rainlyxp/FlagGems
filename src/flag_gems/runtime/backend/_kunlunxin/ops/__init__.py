@@ -196,6 +196,7 @@ from .maximum import maximum
 from .mean import mean, mean_dim
 from .min import min, min_dim
 from .minimum import minimum
+from .mkldnn_rnn_layer import mkldnn_rnn_layer
 from .mm import mm, mm_out
 from .mse_loss import mse_loss
 from .mul import mul, mul_
@@ -272,6 +273,12 @@ from .safe_softmax import _safe_softmax
 from .scaled_softmax import scaled_softmax_backward, scaled_softmax_forward
 from .scatter import scatter, scatter_
 from .scatter_add_ import scatter_add_
+from .segment_reduce import (
+    _segment_reduce_backward,
+    _segment_reduce_backward_out,
+    segment_reduce,
+    segment_reduce_out,
+)
 from .select_scatter import select_scatter
 from .selu import selu, selu_
 from .sgn_ import sgn_
@@ -288,6 +295,7 @@ from .softmax import softmax, softmax_backward
 from .softplus import softplus
 from .softshrink import softshrink, softshrink_out
 from .sort import sort, sort_stable
+from .special_bessel_y1 import special_bessel_y1
 from .special_log_softmax import special_log_softmax
 from .special_logsumexp import special_logsumexp
 from .sqrt import sqrt, sqrt_
@@ -340,10 +348,13 @@ __all__ = [
     "_thnn_fused_lstm_cell_backward_impl",
     "_conv_depthwise2d",
     "_safe_softmax",
+    "_segment_reduce_backward",
+    "_segment_reduce_backward_out",
     "digamma_",
     "soft_margin_loss",
     "soft_margin_loss_out",
     "soft_margin_loss_backward",
+    "special_bessel_y1",
     "special_log_softmax",
     "special_logsumexp",
     "softshrink",
@@ -595,6 +606,7 @@ __all__ = [
     "min",
     "min_dim",
     "minimum",
+    "mkldnn_rnn_layer",
     "mm",
     "mm_out",
     "mse_loss",
@@ -695,6 +707,8 @@ __all__ = [
     "scatter_",
     "scatter_add_",
     "select_scatter",
+    "segment_reduce",
+    "segment_reduce_out",
     "selu",
     "selu_",
     "sigmoid",
