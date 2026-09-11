@@ -22,6 +22,7 @@ from ._thnn_fused_lstm_cell_backward_impl import _thnn_fused_lstm_cell_backward_
 from .abs import abs, abs_
 from .absolute import absolute
 from .acos import acos
+from .acosh import acosh, acosh_
 from .add import add, add_
 from .addcdiv import addcdiv, addcdiv_, addcdiv_out
 from .addcmul import addcmul, addcmul_out
@@ -346,6 +347,8 @@ __all__ = [
     "abs_",
     "absolute",
     "acos",
+    "acosh",
+    "acosh_",
     "add",
     "add_",
     "addcdiv",
