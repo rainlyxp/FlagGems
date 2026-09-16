@@ -54,6 +54,7 @@ from ._upsample_nearest_exact2d_backward import _upsample_nearest_exact2d_backwa
 from .abs import abs, abs_
 from .absolute import absolute, absolute_
 from .acos import acos, acos_
+from .acosh import acosh, acosh_
 from .adaptive_avg_pool2d import adaptive_avg_pool2d
 from .adaptive_max_pool2d import adaptive_max_pool2d
 from .add import add, add_
@@ -259,6 +260,7 @@ from .groupnorm import group_norm, group_norm_backward
 from .gt import gt, gt_scalar, gt_scalar_, gt_tensor_
 from .hadamard_transform import hadamard_transform
 from .hardsigmoid import hardsigmoid, hardsigmoid_out
+from .hardswish_ import hardswish_
 from .heaviside_ import heaviside_  # noqa: F401
 from .histc import histc
 from .hstack import hstack
@@ -269,6 +271,7 @@ from .igammac_ import igammac_
 from .im2col import im2col
 from .index import index
 from .index_add import index_add, index_add_
+from .index_fill import index_fill, index_fill_
 from .index_copy_ import index_copy_
 from .index_put import index_put, index_put_
 from .index_put_impl import _index_put_impl_
@@ -656,6 +659,8 @@ __all__ = [
     "absolute_",
     "acos",
     "acos_",
+    "acosh",
+    "acosh_",
     "adaptive_avg_pool2d",
     "adaptive_max_pool2d",
     "add",
@@ -896,6 +901,7 @@ __all__ = [
     "hadamard_transform",
     "hardsigmoid",
     "hardsigmoid_out",
+    "hardswish_",
     "histc",
     "hstack",
     "hypot",
@@ -906,6 +912,8 @@ __all__ = [
     "index",
     "index_add",
     "index_add_",
+    "index_fill",
+    "index_fill_",
     "index_copy_",
     "index_put",
     "index_put_",
