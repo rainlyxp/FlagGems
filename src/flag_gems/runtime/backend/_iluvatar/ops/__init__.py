@@ -48,6 +48,7 @@ from .matmul_int8 import matmul_int8
 from .mm import mm, mm_out
 from .narrow_copy import narrow_copy
 from .nonzero_numpy import nonzero_numpy
+from .pad_sequence import pad_sequence
 from .permute_copy import permute_copy
 from .renorm_ import renorm_
 from .repeat import repeat
@@ -115,11 +116,12 @@ __all__ = [
     "mm_out",
     "narrow_copy",
     "nonzero_numpy",
+    "pad_sequence",
     "permute_copy",
     "renorm_",
     "repeat",
-    "resolve_neg",
     "repeat_interleave_self_int",
+    "resolve_neg",
     "run",
     "scatter_add_",
     "softplus_backward",
