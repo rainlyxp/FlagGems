@@ -23,13 +23,12 @@ vendor_info = VendorDescriptor(
 )
 
 CUSTOMIZED_UNUSED_OPS = (
-    "cummin",
     "cumsum",
-    "nll_loss2d",
     "randperm",
-    "sort",
     "topk",
     "unique",
+    "slice",
+    "conv_transpose1d",
 )
 
 
