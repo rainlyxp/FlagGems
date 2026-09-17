@@ -359,6 +359,7 @@ from .median import median, median_dim, median_dim_values, median_out
 from .min import min, min_dim
 from .minimum import minimum
 from .miopen_batch_norm_backward import miopen_batch_norm_backward
+from .mish import mish, mish_
 from .mish_backward import mish_backward
 from .mm import mm, mm_out
 from .mode import mode
@@ -501,6 +502,7 @@ from .sign import sign, sign_out
 from .signbit import signbit, signbit_out
 from .silu import silu, silu_, silu_backward
 from .sin import sin, sin_
+from .sinh import sinh, sinh_
 from .sinc import sinc, sinc_, special_sinc
 from .slice_backward import slice_backward
 from .slice_scatter import slice_scatter
@@ -1025,6 +1027,8 @@ __all__ = [
     "min_dim",
     "minimum",
     "miopen_batch_norm_backward",
+    "mish",
+    "mish_",
     "mish_backward",
     "mm",
     "mm_out",
@@ -1202,6 +1206,8 @@ __all__ = [
     "silu_backward",
     "sin",
     "sin_",
+    "sinh",
+    "sinh_",
     "sinc",
     "sinc_",
     "slice_backward",
