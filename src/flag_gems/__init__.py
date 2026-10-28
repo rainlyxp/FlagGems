@@ -390,6 +390,8 @@ _FULL_CONFIG = (
     ("_histogramdd_from_bin_tensors", _histogramdd_from_bin_tensors),
     ("_histogramdd_from_bin_tensors.out", _histogramdd_from_bin_tensors_out),
     ("_index_put_impl_", _index_put_impl_),
+    ("_indices_copy", _indices_copy, None, (AUTOGRAD_DISPATCH_KEY,)),
+    ("_indices_copy.out", _indices_copy_out, None, (AUTOGRAD_DISPATCH_KEY,)),
     (
         "_int_mm",
         int_mm,
@@ -998,6 +1000,8 @@ _FULL_CONFIG = (
     ("divide_.Tensor_mode", div_mode_),
     ("dot", dot),
     ("dropout_", dropout_),
+    ("dsplit.array", dsplit),
+    ("dsplit.int", dsplit),
     ("dstack", dstack),
     ("elu", elu),
     ("elu_", elu_),

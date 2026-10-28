@@ -277,6 +277,7 @@ from flag_gems.ops._histogramdd_from_bin_tensors import (
     _histogramdd_from_bin_tensors,
     _histogramdd_from_bin_tensors_out,
 )
+from flag_gems.ops._indices_copy import _indices_copy, _indices_copy_out
 from flag_gems.ops._is_all_true import _is_all_true
 from flag_gems.ops._is_any_true import _is_any_true
 from flag_gems.ops._jagged_to_padded_dense_forward import (
@@ -702,6 +703,7 @@ from flag_gems.ops.divide import divide
 from flag_gems.ops.dot import dot
 from flag_gems.ops.dropout import dropout, dropout_backward
 from flag_gems.ops.dropout_ import dropout_
+from flag_gems.ops.dsplit import dsplit
 from flag_gems.ops.dstack import run as dstack
 from flag_gems.ops.elu import elu, elu_, elu_backward
 from flag_gems.ops.embedding import embedding, embedding_backward
@@ -1883,6 +1885,8 @@ __all__ = [
     "_histogramdd_from_bin_tensors",
     "_histogramdd_from_bin_tensors_out",
     "_index_put_impl_",
+    "_indices_copy",
+    "_indices_copy_out",
     "_is_all_true",
     "_is_any_true",
     "_jagged_to_padded_dense_forward",
@@ -2287,6 +2291,7 @@ __all__ = [
     "dropout",
     "dropout_",
     "dropout_backward",
+    "dsplit",
     "dstack",
     "efficient_attention_backward",
     "elu",
