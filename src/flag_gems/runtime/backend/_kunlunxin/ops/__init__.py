@@ -377,6 +377,7 @@ from .cumsum import cumsum, cumsum_out, normed_cumsum
 from .cumsum_ import cumsum_
 from .deg2rad import deg2rad, deg2rad_, deg2rad_out
 from .dequantize import dequantize
+from .det import det
 from .diag import diag
 from .diag_embed import diag_embed
 from .diagonal import diagonal_backward
@@ -1324,6 +1325,7 @@ __all__ = [
     "deg2rad_",
     "deg2rad_out",
     "dequantize",
+    "det",
     "diag",
     "diag_embed",
     "diagonal_backward",

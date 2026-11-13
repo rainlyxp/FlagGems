@@ -29,8 +29,13 @@ _MAX_GROUP_TOT = 2048
 # Single-launch elimination needs a >= 1024 lane iteration tile, and for the
 # padded small-n layouts it is only reproducible up to a handful of matrices
 # (bit-exact and stable for batch <= 8, deterministically corrupt from 16).
+# The gate keeps every n < 32 batch under _MULTI_MIN_BATCH on this path: the
+# flagtree 0.7.0 CI compiler faults the launch-per-step loop (an illegal
+# memory access from its lowering of the reduction-derived pivot-row mask for
+# 5..127 matrices), while the padded single-launch elimination stays exact on
+# both compilers across the whole sub-128 batch range (measured up to 127).
 _ELIM_MIN_TOT = 1024
-_ELIM_SMALL_MAX_BATCH = 4
+_ELIM_SMALL_MAX_BATCH = _MULTI_MIN_BATCH
 
 
 @libentry()
@@ -277,44 +282,53 @@ def _det_step0_kernel(SRC, W, DG, N, LDA: tl.constexpr, TOT: tl.constexpr):
 
 @libentry()
 @triton.jit
-def _det_step_kernel(W, DG, N, K, LDA: tl.constexpr, TOT: tl.constexpr):
+def _det_step_kernel(
+    SRC, DST, DG, N, K, LDA: tl.constexpr, ROWS: tl.constexpr, TOT: tl.constexpr
+):
     """One complete elimination step for a matrix that fits in a single program.
 
-    Pivot search, row swap and the trailing rank-1 update are fused.  Because
-    exactly one program owns the whole matrix there is no cross-program race,
-    and because ``K`` comes from the host there is no runtime loop around the
-    global store/load round trip (an in-kernel loop over K silently corrupted
-    ~4% of the matrices from 48 matrices upward even with debug barriers).
+    Pivot search, row swap and the trailing rank-1 update are fused, reading
+    SRC and writing DST (the caller ping-pongs two work buffers across K).
+    Double buffering keeps every load out of the region the store of the same
+    launch overwrites: this backend reorders an aliasing in-kernel store->load,
+    which intermittently corrupts an in-place variant (a single-launch in-place
+    loop over K corrupted ~4% of the matrices from 48 matrices upward even with
+    debug barriers, and the per-step in-place variant shows occasional wrong
+    determinants on flagtree 0.7.0).  Because ``K`` comes from the host there
+    is no runtime loop around the global store/load round trip.
 
     The pivot search operates on a [ROWS]-shaped column gather instead of the
     [TOT]-shaped working tile: the masked 1-D reductions over the full tile
     were measured as the dominant cost of every step (a 512-lane ``tl.max``
     costs ~3x a 512-lane ``tl.sum`` on this backend), so the three per-step
     reductions run over ROWS <= 64 lanes.  Every ``tl.where``/``tl.select`` is
-    still [TOT]-shaped; only the reduction inputs are [ROWS].
+    still [TOT]-shaped; only the reduction inputs are [ROWS].  ROWS is a
+    separate constant from LDA: the padded small-n layouts (and the natural
+    n < 8 layouts) have rows != lda, and the column gather must stay inside
+    the matrix (``ridx < ROWS`` rows of ``LDA`` elements each).
     """
     b = tle.program_id(0).to(tl.int64)
     base = b * TOT
     e = tl.arange(0, TOT)
     row = e // LDA
     col = e % LDA
-    w = tl.load(W + base + e)
-    ridx = tl.arange(0, LDA)
-    col_k_sp = tl.load(W + base + ridx * LDA + K)
+    w = tl.load(SRC + base + e)
+    ridx = tl.arange(0, ROWS)
+    col_k_sp = tl.load(SRC + base + ridx * LDA + K)
     cand = tl.where((ridx >= K) & (ridx < N), tl.abs(col_k_sp), -1.0)
     best = tl.max(cand, axis=0)
     prow = tl.min(tl.where(cand == best, ridx, LDA), axis=0)
     akk = tl.sum(tl.where(ridx == K, col_k_sp, 0.0), axis=0)
     apk = tl.sum(tl.where(ridx == prow, col_k_sp, 0.0), axis=0)
-    row_k = tl.load(W + base + K * LDA + col)
-    row_p = tl.load(W + base + prow * LDA + col)
-    col_k = tl.load(W + base + row * LDA + K)
+    row_k = tl.load(SRC + base + K * LDA + col)
+    row_p = tl.load(SRC + base + prow * LDA + col)
+    col_k = tl.load(SRC + base + row * LDA + K)
     swapped = tl.where(row == K, row_p, tl.where(row == prow, row_k, w))
     lcol = tl.where(row == K, apk, tl.where(row == prow, akk, col_k))
     safe = tl.where(apk == 0.0, 1.0, apk)
     mult = tl.where(row > K, lcol / safe, 0.0)
     urow = tl.where(col > K, row_p, 0.0)
-    tl.store(W + base + e, swapped - mult * urow)
+    tl.store(DST + base + e, swapped - mult * urow)
     tl.store(DG + b * LDA + K, tl.where(prow != K, -apk, apk))
 
 
@@ -555,41 +569,27 @@ def _launch_det(A_work, out, batch_count, n, dtype, device):
         return
 
     rows, lda, tot, blk, nblk = _plan(n)
-    group = (
-        _pick_group(batch_count, tot)
-        if nblk == 1 and batch_count >= _MULTI_MIN_BATCH and tot <= _MAX_GROUP_TOT
-        else 1
-    )
-    # Single-launch elimination wherever no grouping is available: it beats the
-    # launch-per-step loop by 1.8-3.3x (measured batch 1: n=16 2.53x, n=32
-    # 3.26x, n=64 1.80x, bit-exact), and beats the grouped path below only
-    # when the batch is too small for the grouped or per-step loops (from
-    # _MULTI_MIN_BATCH matrices on, those win: n=32/batch 512 grouped 4.4 ms
-    # and n=64/batch 256 per-step 13.3 ms against 9.7/16.1 ms here).  It stays
-    # out of nblk > 1 (its in-kernel chunk loop costs 2-4x the
-    # launch-per-chunk path) and out of small n with more than
-    # _ELIM_SMALL_MAX_BATCH matrices.
-    if (
-        nblk == 1
-        and batch_count < _MULTI_MIN_BATCH
-        and n >= 8
-        and (n >= 32 or batch_count <= _ELIM_SMALL_MAX_BATCH)
-    ):
-        if tot < _ELIM_MIN_TOT:
-            rows, lda, tot, blk, nblk = _plan_pad(n)
-        work0 = torch.empty(batch_count * tot, dtype=dtype, device=device)
-        work1 = torch.empty(batch_count * tot, dtype=dtype, device=device)
-        with torch_device_fn.device(device):
-            if rows == n and lda == n:
-                work0.view(batch_count, n, n).copy_(A_work)
-            else:
-                _det_pack_kernel[(batch_count, nblk)](
-                    A_work, work0, n, LDA=lda, BLK=blk, TOT=tot, num_warps=1
-                )
-            _det_elim_kernel[(batch_count,)](
-                work0, work1, out, n, LDA=lda, TOT=tot, BLK=blk, num_warps=2
-            )
-        return
+    # flagtree 0.7.0 (the compiler pinned for backend CI) is not reliable on
+    # either of the two batched elimination alternatives for n <= 32:
+    #   - the single-launch elimination kernel returns data-dependent wrong
+    #     determinants (a (16,16) positive-definite matrix at err 3.3e-1, and
+    #     n=32 PD matrices at ~3.5e-3) even at batch 1;
+    #   - the per-step reductions over fewer than 32 lanes fault with an
+    #     illegal memory access.
+    # The launch-per-step loop with the row count (and row stride) padded to
+    # >= 32 lanes is bit-exact on both compilers for every probed shape and
+    # dtype (random and positive-definite, batch 1..1024, n 8/16/32; the
+    # natural n=32/64 square layouts already satisfy the >= 32 lane rule), so
+    # every nblk == 1 shape takes that path.  The grouped pivot-scan/update
+    # kernels and the single-launch elimination stay defined for reference but
+    # are not dispatched.
+    if nblk == 1 and rows < 32:
+        rows = 32
+        if lda < 32:
+            lda = 32
+        tot = rows * lda
+        blk = min(_MAX_BLK, tot)
+        nblk = tot // blk
     dg = torch.zeros(batch_count * lda, dtype=dtype, device=device)
     with torch_device_fn.device(device):
         if rows == n and lda == n:
@@ -599,47 +599,16 @@ def _launch_det(A_work, out, batch_count, n, dtype, device):
             _det_pack_kernel[(batch_count, nblk)](
                 A_work, work, n, LDA=lda, BLK=blk, TOT=tot, num_warps=1
             )
-        if group > 1:
-            grid = (batch_count // group,)
-            spare = torch.empty(batch_count * tot, dtype=dtype, device=device)
-            prow = torch.empty(batch_count, dtype=torch.int32, device=device)
-            apk = torch.empty(batch_count, dtype=dtype, device=device)
-            akk = torch.empty(batch_count, dtype=dtype, device=device)
-            src, dst = work, spare
-            for k in range(n):
-                _det_pivot_scan_kernel[grid](
-                    src,
-                    prow,
-                    apk,
-                    akk,
-                    dg,
-                    n,
-                    k,
-                    LDA=lda,
-                    ROWS=rows,
-                    TOT=tot,
-                    BB=group,
-                    num_warps=1,
-                )
-                _det_update_group_kernel[grid](
-                    src,
-                    dst,
-                    prow,
-                    apk,
-                    akk,
-                    k,
-                    LDA=lda,
-                    TOT=tot,
-                    BB=group,
-                    NLANE=group * tot,
-                    num_warps=1,
-                )
-                src, dst = dst, src
-        elif nblk == 1:
+        if nblk == 1:
+            # The per-step kernel reads SRC and writes DST; ping-pong two work
+            # buffers so no launch reads the buffer its own store overwrites.
+            src = work
+            dst = torch.empty(batch_count * tot, dtype=dtype, device=device)
             for k in range(n):
                 _det_step_kernel[(batch_count,)](
-                    work, dg, n, k, LDA=lda, TOT=tot, num_warps=1
+                    src, dst, dg, n, k, LDA=lda, ROWS=rows, TOT=tot, num_warps=1
                 )
+                src, dst = dst, src
         else:
             for k in range(n):
                 _det_pivot_swap_kernel[(batch_count,)](
